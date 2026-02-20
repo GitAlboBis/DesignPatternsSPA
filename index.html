@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="An interactive Single Page Application for studying Software Engineering Design Patterns — Creational, Structural, and Behavioral." />
+    <title>Design Patterns — Study Guide</title>
+
+    <!-- Google Font: Inter for a clean, modern academic feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        /* ========================================================
+       CSS CUSTOM PROPERTIES (Design Tokens)
+       ======================================================== */
+        :root {
+            /* — Palette — */
+            --color-bg: #f4f6f9;
+            --color-surface: #ffffff;
+            --color-sidebar-bg: #1e293b;
+            --color-sidebar-text: #cbd5e1;
+            --color-sidebar-heading: #94a3b8;
+            --color-primary: #6366f1;
+            --color-primary-soft: #818cf8;
+            --color-active-bg: rgba(99, 102, 241, .15);
+            --color-active-text: #a5b4fc;
+            --color-text: #1e293b;
+            --color-text-muted: #64748b;
+            --color-border: #e2e8f0;
+            --color-pro-bg: #ecfdf5;
+            --color-pro-border: #6ee7b7;
+            --color-pro-icon: #10b981;
+            --color-con-bg: #fef2f2;
+            --color-con-border: #fca5a5;
+            --color-con-icon: #ef4444;
+
+            /* — Typography — */
+            --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+            /* — Layout — */
+            --sidebar-width: 280px;
+
+            /* — Shadows — */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, .05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, .08);
+            --shadow-lg: 0 10px 30px rgba(0, 0, 0, .10);
+
+            /* — Transitions — */
+            --transition-fast: .2s ease;
+            --transition-med: .35s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        /* ========================================================
+       RESET & BASE STYLES
+       ======================================================== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+            /* prevent body scroll; main area scrolls */
+        }
+
+        /* ========================================================
+       SIDEBAR
+       ======================================================== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--color-sidebar-bg);
+            color: var(--color-sidebar-text);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform var(--transition-med);
+        }
+
+        /* — Branding — */
+        .sidebar__brand {
+            padding: 28px 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .sidebar__brand h1 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar__brand h1 .icon {
+            font-size: 1.4rem;
+        }
+
+        .sidebar__brand p {
+            font-size: .75rem;
+            color: var(--color-sidebar-heading);
+            margin-top: 4px;
+        }
+
+        /* — Navigation — */
+        .sidebar__nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 12px;
+        }
+
+        /* Category group */
+        .sidebar__category {
+            margin-bottom: 20px;
+        }
+
+        .sidebar__category-title {
+            font-size: .65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--color-sidebar-heading);
+            padding: 0 12px 8px;
+        }
+
+        /* Pattern button */
+        .sidebar__btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--color-sidebar-text);
+            font-family: var(--font-family);
+            font-size: .875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background var(--transition-fast), color var(--transition-fast);
+            text-align: left;
+        }
+
+        .sidebar__btn:hover {
+            background: rgba(255, 255, 255, .06);
+            color: #f1f5f9;
+        }
+
+        .sidebar__btn.active {
+            background: var(--color-active-bg);
+            color: var(--color-active-text);
+            font-weight: 600;
+        }
+
+        .sidebar__btn .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Dot colours per category */
+        .dot--creazionali {
+            background: #a78bfa;
+        }
+
+        .dot--strutturali {
+            background: #38bdf8;
+        }
+
+        .dot--comportamentali {
+            background: #fbbf24;
+        }
+
+        /* — Mobile hamburger — */
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 200;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 10px;
+            background: var(--color-sidebar-bg);
+            color: #f1f5f9;
+            font-size: 1.4rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Overlay for mobile sidebar */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .4);
+            z-index: 90;
+        }
+
+        /* ========================================================
+       MAIN CONTENT AREA
+       ======================================================== */
+        .main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            overflow-y: auto;
+            height: 100vh;
+            padding: 48px 56px 80px;
+        }
+
+        /* — Welcome / Empty State — */
+        .welcome {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 60vh;
+            animation: fadeUp .5s ease both;
+        }
+
+        .welcome .emoji {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+        }
+
+        .welcome h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: var(--color-text-muted);
+            max-width: 420px;
+            font-size: .95rem;
+        }
+
+        /* — Pattern Detail — */
+        .pattern-detail {
+            animation: fadeUp .4s ease both;
+        }
+
+        /* Category badge */
+        .pattern-detail__badge {
+            display: inline-block;
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+
+        .badge--creazionali {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .badge--strutturali {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .badge--comportamentali {
+            background: #fef9c3;
+            color: #a16207;
+        }
+
+        /* Title */
+        .pattern-detail__title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -.03em;
+            line-height: 1.2;
+            margin-bottom: 24px;
+        }
+
+        /* Definition card */
+        .pattern-detail__definition {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-sm);
+            font-size: .95rem;
+            line-height: 1.75;
+            color: var(--color-text-muted);
+        }
+
+        .pattern-detail__definition strong {
+            color: var(--color-text);
+        }
+
+        /* UML Images — dual grid */
+        .pattern-detail__diagrams {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 36px;
+        }
+
+        .pattern-detail__diagram-card {
+            text-align: center;
+        }
+
+        .pattern-detail__diagram-label {
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--color-text-muted);
+            margin-bottom: 10px;
+        }
+
+        .pattern-detail__image-wrapper {
+            overflow: hidden;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-md);
+            transition: box-shadow var(--transition-med);
+        }
+
+        .pattern-detail__image-wrapper:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pattern-detail__image {
+            display: block;
+            width: 100%;
+            border-radius: 0;
+            transition: transform var(--transition-med);
+            cursor: zoom-in;
+        }
+
+        .pattern-detail__image:hover {
+            transform: scale(1.08);
+        }
+
+        /* — Pros & Cons Grid — */
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .pros-cons__card {
+            border-radius: 12px;
+            padding: 24px 24px 28px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .pros-cons__card h3 {
+            font-size: .95rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pros-cons__card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .pros-cons__card li {
+            position: relative;
+            padding-left: 22px;
+            margin-bottom: 10px;
+            font-size: .9rem;
+            line-height: 1.5;
+        }
+
+        .pros-cons__card li::before {
+            position: absolute;
+            left: 0;
+            top: 2px;
+            font-size: .85rem;
+        }
+
+        /* Pros card */
+        .card--pros {
+            background: var(--color-pro-bg);
+            border: 1px solid var(--color-pro-border);
+        }
+
+        .card--pros h3 {
+            color: var(--color-pro-icon);
+        }
+
+        .card--pros li::before {
+            content: '✅';
+        }
+
+        /* Cons card */
+        .card--cons {
+            background: var(--color-con-bg);
+            border: 1px solid var(--color-con-border);
+        }
+
+        .card--cons h3 {
+            color: var(--color-con-icon);
+        }
+
+        .card--cons li::before {
+            content: '⚠️';
+        }
+
+        /* — Differences / Comparisons Section — */
+        .differences {
+            margin-top: 36px;
+        }
+
+        .differences__title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .differences__empty {
+            font-style: italic;
+            color: var(--color-text-muted);
+            font-size: .9rem;
+            padding: 12px 0;
+        }
+
+        .differences__item {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow var(--transition-fast);
+        }
+
+        .differences__item:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .differences__item[open] {
+            box-shadow: var(--shadow-md);
+        }
+
+        .differences__item summary {
+            padding: 14px 20px;
+            font-weight: 600;
+            font-size: .92rem;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            user-select: none;
+            transition: color var(--transition-fast);
+        }
+
+        .differences__item summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .differences__item summary::before {
+            content: '▸';
+            font-size: .85rem;
+            color: var(--color-primary);
+            transition: transform var(--transition-fast);
+        }
+
+        .differences__item[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .differences__item summary:hover {
+            color: var(--color-primary);
+        }
+
+        .differences__item-body {
+            padding: 0 20px 16px;
+            font-size: .9rem;
+            line-height: 1.7;
+            color: var(--color-text-muted);
+            border-top: 1px solid var(--color-border);
+            margin-top: 0;
+            padding-top: 14px;
+        }
+
+        /* ========================================================
+       ANIMATIONS
+       ======================================================== */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ========================================================
+       RESPONSIVE  (≤ 768 px)
+       ======================================================== */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.visible {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 72px 20px 60px;
+            }
+
+            .pattern-detail__title {
+                font-size: 1.6rem;
+            }
+
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+
+            .pattern-detail__diagrams {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =====================================================
+       MOBILE HAMBURGER
+       ===================================================== -->
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open navigation">☰</button>
+
+    <!-- Overlay (mobile only) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- =====================================================
+       SIDEBAR
+       ===================================================== -->
+    <aside class="sidebar" id="sidebar">
+        <!-- Branding -->
+        <div class="sidebar__brand">
+            <h1><span class="icon">📐</span> Design Patterns</h1>
+            <p>Software Engineering Study Guide</p>
+        </div>
+
+        <!-- Dynamic navigation list — populated by JS -->
+        <nav class="sidebar__nav" id="sidebarNav"></nav>
+    </aside>
+
+    <!-- =====================================================
+       MAIN CONTENT
+       ===================================================== -->
+    <main class="main" id="mainContent">
+        <!-- Default welcome state -->
+        <div class="welcome" id="welcomeScreen">
+            <div class="emoji">🧩</div>
+            <h2>Welcome!</h2>
+            <p>Select a Design Pattern from the sidebar to explore its definition, UML diagram, advantages, and
+                trade‑offs.</p>
+        </div>
+    </main>
+
+    <!-- ==========================================================================
+       JAVASCRIPT  —  Data, Rendering, Interaction
+       ========================================================================== -->
+    <script>
+        // ==================================================================
+        //  DATA LAYER — patterns array
+        //  Each object contains all the info needed to render a pattern card.
+        // ==================================================================
+        const patterns = [
+            // ============================================================
+            //  CREAZIONALI (Creational)
+            // ============================================================
+            {
+                id: 'singleton',
+                name: 'Singleton',
+                category: 'creazionali',
+                definition: 'Il pattern Singleton garantisce che una classe abbia una sola istanza e fornisce un punto di accesso globale a essa. Viene utilizzato per gestire risorse condivise come connessioni al database, configurazioni o servizi di logging.',
+                baseUmlUrl: 'creazionali/Singleton.png',
+                exampleUmlUrl: 'creazionali/SingletonEsempio.png',
+                pros: [
+                    'Garantisce un\'unica istanza condivisa in tutta l\'applicazione.',
+                    'L\'istanza viene creata solo quando serve (inizializzazione lazy).',
+                ],
+                cons: [
+                    'Introduce stato globale nascosto, rendendo difficile il testing unitario.',
+                    'Viola il Principio di Responsabilità Singola (gestisce il proprio ciclo di vita).',
+                    'Complessità in ambienti Multithreading.',
+                    'Maschera un cattivo design architetturale.',
+                ],
+                differences: [],
+            },
+            {
+                id: 'factory-method',
+                name: 'Factory Method',
+                category: 'creazionali',
+                definition: 'Il Factory Method definisce un\'interfaccia per la creazione di oggetti, delegando alle sottoclassi la decisione su quale classe concreta istanziare. Promuove il disaccoppiamento tra il codice client e le classi concrete.',
+                baseUmlUrl: 'creazionali/FactoryMethod.png',
+                exampleUmlUrl: 'creazionali/FactoryMethodEsempio.png',
+                pros: [
+                    'Disaccoppia il codice client dalle classi concrete dei prodotti.',
+                    'Open/Closed Principle: nuovi prodotti senza modificare il codice esistente.',
+                    'Single Responsibility Principle.',
+                ],
+                cons: [
+                    'Può portare a una proliferazione di sottoclassi per ogni nuovo tipo di prodotto.',
+                    'Aggiunge complessità strutturale rispetto a un semplice costruttore.',
+                ],
+                differences: [
+                    { compareWith: 'Abstract Factory', text: '<strong>Differenze Chiave e Relazioni</strong><br><br>• <strong>Singolo Prodotto vs. Famiglie di Prodotti:</strong> La differenza più netta risiede nello scopo. Il Factory Method è focalizzato sulla restituzione di un singolo prodotto generico in base alla sottoclasse istanziata. L\'Abstract Factory, invece, espone più metodi atti alla creazione di prodotti diversi che condividono una correlazione concettuale (una famiglia).<br><br>• <strong>Complessità Architetturale:</strong> Il Factory Method è meno complicato e fa un largo uso dell\'ereditarietà a livello dei creatori (sottoclassi) per sovrascrivere la creazione. L\'Abstract Factory è un pattern più avanzato che richiede la definizione di molte interfacce e classi aggiuntive sia per le fabbriche che per i prodotti, rendendo la base di codice potenzialmente più complessa.<br><br>• <strong>Evoluzione Naturale del Design:</strong> Molti progetti software iniziano la loro fase di design sfruttando il pattern Factory Method per la sua semplicità. Man mano che il sistema evolve e nascono i requisiti per gestire varianti multiple e famiglie di oggetti, l\'architettura tende a evolvere logicamente verso il pattern Abstract Factory (o, in altri casi, Prototype e Builder).<br><br>• <strong>Coesistenza:</strong> Molto spesso i due pattern lavorano insieme: una classe di tipo Abstract Factory è solitamente implementata avvalendosi al suo interno di un insieme di singoli Factory Methods per restituire ciascuno dei prodotti specifici della famiglia.' },
+                ],
+            },
+            {
+                id: 'abstract-factory',
+                name: 'Abstract Factory',
+                category: 'creazionali',
+                definition: 'L\'Abstract Factory fornisce un\'interfaccia per creare famiglie di oggetti correlati senza specificare le classi concrete. È utile quando il sistema deve essere indipendente da come i prodotti vengono creati e composti.',
+                baseUmlUrl: 'creazionali/AbstractFactory.png',
+                exampleUmlUrl: 'creazionali/AbstractFactoryEsempio.png',
+                pros: [
+                    'Garantisce la coerenza tra prodotti della stessa famiglia.',
+                    'Isola il codice client dalle implementazioni concrete.',
+                    'Single Responsibility Principle.',
+                    'Open/Closed Principle.',
+                ],
+                cons: [
+                    'Aggiungere un nuovo tipo di prodotto richiede la modifica di tutte le factory.',
+                    'Aumenta significativamente il numero di classi e interfacce.',
+                ],
+                differences: [
+                    { compareWith: 'Factory Method', text: '<strong>Differenze Chiave e Relazioni</strong><br><br>• <strong>Singolo Prodotto vs. Famiglie di Prodotti:</strong> La differenza più netta risiede nello scopo. Il Factory Method è focalizzato sulla restituzione di un singolo prodotto generico in base alla sottoclasse istanziata. L\'Abstract Factory, invece, espone più metodi atti alla creazione di prodotti diversi che condividono una correlazione concettuale (una famiglia).<br><br>• <strong>Complessità Architetturale:</strong> Il Factory Method è meno complicato e fa un largo uso dell\'ereditarietà a livello dei creatori (sottoclassi) per sovrascrivere la creazione. L\'Abstract Factory è un pattern più avanzato che richiede la definizione di molte interfacce e classi aggiuntive sia per le fabbriche che per i prodotti, rendendo la base di codice potenzialmente più complessa.<br><br>• <strong>Evoluzione Naturale del Design:</strong> Molti progetti software iniziano la loro fase di design sfruttando il pattern Factory Method per la sua semplicità. Man mano che il sistema evolve e nascono i requisiti per gestire varianti multiple e famiglie di oggetti, l\'architettura tende a evolvere logicamente verso il pattern Abstract Factory (o, in altri casi, Prototype e Builder).<br><br>• <strong>Coesistenza:</strong> Molto spesso i due pattern lavorano insieme: una classe di tipo Abstract Factory è solitamente implementata avvalendosi al suo interno di un insieme di singoli Factory Methods per restituire ciascuno dei prodotti specifici della famiglia.' },
+                ],
+            },
+            {
+                id: 'builder',
+                name: 'Builder',
+                category: 'creazionali',
+                definition: 'Il pattern Builder separa la costruzione di un oggetto complesso dalla sua rappresentazione, permettendo allo stesso processo di costruzione di creare rappresentazioni diverse. Ideale per oggetti con molti parametri opzionali.',
+                baseUmlUrl: 'creazionali/Builder.png',
+                exampleUmlUrl: 'creazionali/BuilderEsempio.png',
+                pros: [
+                    'Permette di costruire oggetti complessi passo dopo passo.',
+                    'Lo stesso codice di costruzione può produrre rappresentazioni diverse.',
+                    'Single Responsibility Principle.',
+
+                ],
+                cons: [
+                    'Aumenta la complessità complessiva del codice con classi aggiuntive.',
+                    'Può essere eccessivo per oggetti semplici con pochi parametri.',
+                ],
+                differences: [],
+            },
+            {
+                id: 'prototype',
+                name: 'Prototype',
+                category: 'creazionali',
+                definition: 'Il pattern Prototype consente di creare nuovi oggetti clonando un\'istanza esistente (il prototipo), evitando il costo di creazione da zero. È utile quando la costruzione di un oggetto è costosa o complessa.',
+                baseUmlUrl: 'creazionali/Prototype.png',
+                exampleUmlUrl: 'creazionali/PrototypeEsempio.png',
+                pros: [
+                    'Evita il costo di inizializzazione ripetuta per oggetti complessi.',
+                    'Permette di aggiungere e rimuovere prodotti a runtime.',
+                    'Permette di clonare oggetti con riferimenti circolari.',
+                    'Puoi produrre oggetti complessi convenientemente.',
+                ],
+                cons: [
+                    'Clonare oggetti con riferimenti circolari può essere molto complesso.',
+                    'Richiede l\'implementazione corretta del metodo di clonazione (deep vs shallow copy).',
+                ],
+                differences: [],
+            },
+
+            // ============================================================
+            //  STRUTTURALI (Structural)
+            // ============================================================
+            {
+                id: 'adapter',
+                name: 'Adapter',
+                category: 'strutturali',
+                definition: 'L\'Adapter converte l\'interfaccia di una classe in un\'altra interfaccia attesa dal client. Permette a classi con interfacce incompatibili di collaborare, fungendo da ponte tra due sistemi diversi.',
+                baseUmlUrl: 'strutturali/Adapter.png',
+                exampleUmlUrl: 'strutturali/AdapterEsempio.png',
+                pros: [
+                    'Permette l\'integrazione di classi con interfacce incompatibili.',
+                    'Single Responsibility Principle.',
+                    'Open/Closed Principle.',
+                ],
+                cons: [
+                    'Aumenta la complessità del codice con livelli di astrazione aggiuntivi.',
+                    'A volte una riprogettazione dell\'interfaccia originale sarebbe una soluzione più pulita.',
+                ],
+                differences: [
+                    { compareWith: 'Facade', text: '<strong>Differenze Chiave</strong><br>Le differenze più nette tra i due pattern risiedono nel numero di oggetti coinvolti e nel tipo di interfaccia che espongono:<br><br>• <strong>Creazione vs. Adattamento dell\'interfaccia:</strong> Facade definisce un\'interfaccia completamente nuova e semplificata per interagire con classi esistenti. Adapter, al contrario, cerca di rendere utilizzabile un\'interfaccia già esistente, fungendo da ponte affinché due interfacce diverse possano combaciare.<br><br>• <strong>Singolo oggetto vs. Intero Sottosistema:</strong> Di norma, Adapter "avvolge" e si relaziona con un singolo oggetto (il servizio incompatibile) per adattarne l\'interfaccia. Facade lavora con un intero sottosistema di oggetti, orchestrando il loro funzionamento condiviso.<br><br>• <strong>Intento finale:</strong> L\'intento dell\'Adapter è far dialogare ciò che prima non poteva farlo a causa di problemi di compatibilità. L\'intento della Facade è semplificare e nascondere la complessità creando una scorciatoia per le funzionalità più usate dal client.' },
+                    { compareWith: 'Proxy', text: '<strong>Differenze Chiave</strong><br>La distinzione tra i due pattern può essere riassunta in questi punti fondamentali:<br><br>• <strong>Gestione dell\'Interfaccia:</strong> Questa è la differenza architetturale più netta. L\'Adapter fornisce un\'interfaccia diversa all\'oggetto avvolto per renderlo compatibile con il client, mentre il Proxy fornisce la stessa identica interfaccia dell\'oggetto originale per risultare ad esso intercambiabile.<br><br>• <strong>Intento Principale:</strong> L\'Adapter è concepito per risolvere un problema di incompatibilità: fa funzionare insieme cose che "parlano lingue diverse" (adattamento). Il Proxy, al contrario, non risolve problemi di compatibilità, ma è progettato per controllare e arricchire la gestione di un oggetto (sicurezza, cache, lazy loading) mantenendo inalterata la "lingua" con cui ci si comunica.<br><br>• <strong>Ciclo di vita dell\'oggetto:</strong> Di norma, un Proxy si occupa di istanziare e gestire la vita dell\'oggetto di servizio che nasconde al suo interno. Un Adapter, invece, riceve solitamente un\'istanza di un oggetto di servizio già esistente e creato in precedenza (spesso passata tramite il costruttore) per poterlo adattare e far funzionare con il resto del codice.' },
+                ],
+            },
+            {
+                id: 'bridge',
+                name: 'Bridge',
+                category: 'strutturali',
+                definition: 'Il Bridge separa un\'astrazione dalla sua implementazione in modo che entrambe possano variare indipendentemente. Evita un\'esplosione di sottoclassi quando ci sono più dimensioni di variazione.',
+                baseUmlUrl: 'strutturali/Bridge.png',
+                exampleUmlUrl: 'strutturali/BridgeEsempio.png',
+                pros: [
+                    'Astrazione e implementazione possono evolvere in modo indipendente.',
+                    'Single Responsibility Principle.',
+                    'Open/Closed Principle.',
+                ],
+                cons: [
+                    'Aumenta la complessità strutturale con l\'introduzione di classi aggiuntive.',
+                    'Può essere difficile da applicare a un\'architettura già consolidata.',
+                ],
+                differences: [],
+            },
+            {
+                id: 'composite',
+                name: 'Composite',
+                category: 'strutturali',
+                definition: 'Il Composite compone oggetti in strutture ad albero per rappresentare gerarchie parte‑tutto. Permette ai client di trattare oggetti singoli e composizioni in modo uniforme.',
+                baseUmlUrl: 'strutturali/Composite.png',
+                exampleUmlUrl: 'strutturali/CompositeEsempio.png',
+                pros: [
+                    'Semplifica il codice client che può trattare uniformemente foglie e compositi.',
+                    'Facilita l\'aggiunta di nuovi tipi di componenti senza modificare il codice esistente.',
+                    'Open/Closed Principle.',
+
+                ],
+                cons: [
+                    'Può essere difficile vincolare i tipi di componenti ammessi in un composito.',
+                    'L\'eccessiva generalizzazione rende il design più difficile da comprendere.',
+                ],
+                differences: [
+                    { compareWith: 'Decorator', text: '<strong>Differenze Chiave Architetturali</strong><br>Sebbene entrambi usino la composizione e implementino la stessa interfaccia dell\'oggetto che contengono, le differenze fondamentali si trovano nella cardinalità e nell\'intento:<br><br>• <strong>Molteplicità (1:1 vs 1:N):</strong> Questa è la differenza strutturale più evidente. Un Decorator avvolge sempre un solo componente (relazione uno-a-uno). Strutturalmente assomiglia a una lista concatenata o a una "matrioska", dove ogni strato aggiunge un comportamento. Al contrario, un nodo Composite possiede una lista di componenti figli (relazione uno-a-molti), creando una vera e propria struttura ad albero.<br><br>• <strong>Intento (Arricchimento vs Uniformità):</strong> Il Decorator si concentra sull\'aggiungere responsabilità a un oggetto esistente (es. aggiungere un bordo rosso a un pulsante o la crittografia a un flusso di dati). Il Composite, invece, non aggiunge comportamenti nuovi, ma si concentra sull\'aggregazione: il suo scopo è "sommare" i risultati dei suoi figli in modo che il client veda l\'intero albero come se fosse un oggetto singolo.<br><br>• <strong>Delegazione del lavoro:</strong> Quando un Decorator riceve una richiesta, la passa al suo singolo componente avvolto, magari modificandone i parametri di input o il risultato. Quando un nodo Composite riceve una richiesta, la inoltra a tutti i suoi figli tramite un ciclo e solitamente combina i loro risultati per restituire una risposta aggregata al client.<br><br><strong>Come lavorano insieme</strong><br>Questi due pattern sono così complementari che vengono spesso fusi. Ad esempio, potresti avere una struttura ad albero Composite per gestire l\'interfaccia utente del tuo programma. Se a un certo punto desideri che solo alcuni specifici rami o foglie di quell\'albero abbiano un comportamento aggiuntivo (come un\'animazione o un bordo colorato), puoi usare un Decorator per "avvolgere" quei nodi specifici. Poiché entrambi implementano la stessa interfaccia base del componente, il resto dell\'albero Composite non si accorgerà nemmeno che un nodo è stato decorato.' },
+                ],
+            },
+            {
+                id: 'decorator',
+                name: 'Decorator',
+                category: 'strutturali',
+                definition: 'Il Decorator aggiunge dinamicamente responsabilità a un oggetto, fornendo un\'alternativa flessibile all\'ereditarietà. I decorator si impilano attorno all\'oggetto originale come strati.',
+                baseUmlUrl: 'strutturali/Decorator.png',
+                exampleUmlUrl: 'strutturali/DecoratorEsempio.png',
+                pros: [
+                    'Permette di estendere il comportamento di un oggetto senza modificarne la classe.',
+                    'I decorator possono essere combinati in modo flessibile a runtime.',
+                    'Puoi aggiungere o rimuovere responsabilità in runtime.',
+                    'Single Responsibility Principle.',
+
+                ],
+                cons: [
+                    'Molti piccoli oggetti decorator possono rendere il sistema difficile da debuggare.',
+                    'L\'ordine di applicazione dei decorator può influenzare il risultato finale.',
+                    'è difficile rimuovere un wrapper specifico ',
+                ],
+                differences: [
+                    { compareWith: 'Proxy', text: 'Sia il Decorator che il Proxy avvolgono un oggetto target, ma con intenti diversi. Il Decorator aggiunge dinamicamente nuove responsabilità e comportamenti all\'oggetto, permettendo di impilare più decoratori. Il Proxy, invece, controlla l\'accesso all\'oggetto reale (lazy loading, caching, controllo dei permessi) senza modificarne il comportamento funzionale. In sintesi: il Decorator estende "cosa fa" l\'oggetto, il Proxy controlla "chi e come" vi accede.' },
+                    { compareWith: 'Composite', text: '<strong>Differenze Chiave Architetturali</strong><br>Sebbene entrambi usino la composizione e implementino la stessa interfaccia dell\'oggetto che contengono, le differenze fondamentali si trovano nella cardinalità e nell\'intento:<br><br>• <strong>Molteplicità (1:1 vs 1:N):</strong> Questa è la differenza strutturale più evidente. Un Decorator avvolge sempre un solo componente (relazione uno-a-uno). Strutturalmente assomiglia a una lista concatenata o a una "matrioska", dove ogni strato aggiunge un comportamento. Al contrario, un nodo Composite possiede una lista di componenti figli (relazione uno-a-molti), creando una vera e propria struttura ad albero.<br><br>• <strong>Intento (Arricchimento vs Uniformità):</strong> Il Decorator si concentra sull\'aggiungere responsabilità a un oggetto esistente (es. aggiungere un bordo rosso a un pulsante o la crittografia a un flusso di dati). Il Composite, invece, non aggiunge comportamenti nuovi, ma si concentra sull\'aggregazione: il suo scopo è "sommare" i risultati dei suoi figli in modo che il client veda l\'intero albero come se fosse un oggetto singolo.<br><br>• <strong>Delegazione del lavoro:</strong> Quando un Decorator riceve una richiesta, la passa al suo singolo componente avvolto, magari modificandone i parametri di input o il risultato. Quando un nodo Composite riceve una richiesta, la inoltra a tutti i suoi figli tramite un ciclo e solitamente combina i loro risultati per restituire una risposta aggregata al client.<br><br><strong>Come lavorano insieme</strong><br>Questi due pattern sono così complementari che vengono spesso fusi. Ad esempio, potresti avere una struttura ad albero Composite per gestire l\'interfaccia utente del tuo programma. Se a un certo punto desideri che solo alcuni specifici rami o foglie di quell\'albero abbiano un comportamento aggiuntivo (come un\'animazione o un bordo colorato), puoi usare un Decorator per "avvolgere" quei nodi specifici. Poiché entrambi implementano la stessa interfaccia base del componente, il resto dell\'albero Composite non si accorgerà nemmeno che un nodo è stato decorato.' },
+                ],
+            },
+            {
+                id: 'facade',
+                name: 'Facade',
+                category: 'strutturali',
+                definition: 'Il Facade fornisce un\'interfaccia semplificata a un sottosistema complesso. Nasconde la complessità interna e offre al client un punto di accesso unico e facile da usare.',
+                baseUmlUrl: 'strutturali/Facade.png',
+                exampleUmlUrl: 'strutturali/FacadeEsempio.png',
+                pros: [
+                    'Semplifica l\'uso di sottosistemi complessi con un\'interfaccia unificata.',
+                    'Riduce l\'accoppiamento tra il client e le classi del sottosistema.',
+                ],
+                cons: [
+                    'Può diventare un "God Object" se accoppiato a troppe classi del sottosistema.',
+                    'Può nascondere dettagli importanti di cui il client potrebbe aver bisogno.',
+                ],
+                differences: [
+                    { compareWith: 'Adapter', text: '<strong>Differenze Chiave</strong><br>Le differenze più nette tra i due pattern risiedono nel numero di oggetti coinvolti e nel tipo di interfaccia che espongono:<br><br>• <strong>Creazione vs. Adattamento dell\'interfaccia:</strong> Facade definisce un\'interfaccia completamente nuova e semplificata per interagire con classi esistenti. Adapter, al contrario, cerca di rendere utilizzabile un\'interfaccia già esistente, fungendo da ponte affinché due interfacce diverse possano combaciare.<br><br>• <strong>Singolo oggetto vs. Intero Sottosistema:</strong> Di norma, Adapter "avvolge" e si relaziona con un singolo oggetto (il servizio incompatibile) per adattarne l\'interfaccia. Facade lavora con un intero sottosistema di oggetti, orchestrando il loro funzionamento condiviso.<br><br>• <strong>Intento finale:</strong> L\'intento dell\'Adapter è far dialogare ciò che prima non poteva farlo a causa di problemi di compatibilità. L\'intento della Facade è semplificare e nascondere la complessità creando una scorciatoia per le funzionalità più usate dal client.' },
+                ],
+            },
+            {
+                id: 'flyweight',
+                name: 'Flyweight',
+                category: 'strutturali',
+                definition: 'Il Flyweight riduce il consumo di memoria condividendo lo stato intrinseco (immutabile) tra più oggetti simili. Lo stato estrinseco viene passato dall\'esterno al momento dell\'uso.',
+                baseUmlUrl: 'strutturali/Flyweight.png',
+                exampleUmlUrl: 'strutturali/FlyweightEsempio.png',
+                pros: [
+                    'Riduce drasticamente il consumo di memoria RAM con un gran numero di oggetti simili.',
+                    'Migliora le prestazioni nelle applicazioni con risorse limitate.',
+                ],
+                cons: [
+                    'Il codice diventa più complesso dovendo separare stato intrinseco ed estrinseco.',
+                    'Il risparmio di memoria può essere trascurabile se gli oggetti hanno poco stato condiviso.',
+                    'baratti la RAM per CPU '
+                ],
+                differences: [],
+            },
+            {
+                id: 'proxy',
+                name: 'Proxy',
+                category: 'strutturali',
+                definition: 'Il Proxy fornisce un sostituto o segnaposto per un altro oggetto, controllando l\'accesso a esso. Può aggiungere funzionalità come lazy loading, controllo di accesso, caching o logging.',
+                baseUmlUrl: 'strutturali/Proxy.png',
+                exampleUmlUrl: 'strutturali/ProxyEsempio.png',
+                pros: [
+                    'Controlla l\'accesso all\'oggetto reale senza che il client ne sia consapevole.',
+                    'Permette di gestire il ciclo di vita dell\'oggetto costoso (lazy loading).',
+                ],
+                cons: [
+                    'Introduce latenza aggiuntiva a causa del livello di indirezione.',
+                    'Aumenta la complessità del codice con classi proxy aggiuntive.',
+                ],
+                differences: [
+                    { compareWith: 'Decorator', text: '<strong>Differenze Chiave Architetturali e di Intento</strong><br><br>• <strong>Scopo finale:</strong> L\'intento del Proxy è controllare e regolare l\'uso di un oggetto esistente senza alterarne sostanzialmente ciò che fa. L\'intento del Decorator è arricchire e potenziare l\'oggetto dotandolo di nuove funzionalità.<br><br>• <strong>Creazione vs. Iniezione:</strong> Il Proxy si occupa internamente di allocare l\'istanza dell\'oggetto reale che avvolge (lo nasconde). Al contrario, il Decorator riceve l\'oggetto reale dall\'esterno, permettendo al client di combinare e "impilare" in modo flessibile decine di decoratori attorno allo stesso oggetto base.<br><br>• <strong>Composizione a cipolla:</strong> Mentre il Proxy si pone come singolo "guardiano" e intermediario verso l\'oggetto sottostante, il Decorator è progettato per supportare una composizione ricorsiva, impilando gli oggetti l\'uno sull\'altro in una pila di decoratori (es. Dati Crittografati → Dati Compressi → File Su Disco).' },
+                    { compareWith: 'Adapter', text: '<strong>Differenze Chiave</strong><br>La distinzione tra i due pattern può essere riassunta in questi punti fondamentali:<br><br>• <strong>Gestione dell\'Interfaccia:</strong> Questa è la differenza architetturale più netta. L\'Adapter fornisce un\'interfaccia diversa all\'oggetto avvolto per renderlo compatibile con il client, mentre il Proxy fornisce la stessa identica interfaccia dell\'oggetto originale per risultare ad esso intercambiabile.<br><br>• <strong>Intento Principale:</strong> L\'Adapter è concepito per risolvere un problema di incompatibilità: fa funzionare insieme cose che "parlano lingue diverse" (adattamento). Il Proxy, al contrario, non risolve problemi di compatibilità, ma è progettato per controllare e arricchire la gestione di un oggetto (sicurezza, cache, lazy loading) mantenendo inalterata la "lingua" con cui ci si comunica.<br><br>• <strong>Ciclo di vita dell\'oggetto:</strong> Di norma, un Proxy si occupa di istanziare e gestire la vita dell\'oggetto di servizio che nasconde al suo interno. Un Adapter, invece, riceve solitamente un\'istanza di un oggetto di servizio già esistente e creato in precedenza (spesso passata tramite il costruttore) per poterlo adattare e far funzionare con il resto del codice.' },
+                ],
+            },
+
+            // ============================================================
+            //  COMPORTAMENTALI (Behavioral)
+            // ============================================================
+            {
+                id: 'chain-of-responsibility',
+                name: 'Chain of Responsibility',
+                category: 'comportamentali',
+                definition: 'La Chain of Responsibility permette di passare una richiesta lungo una catena di handler. Ogni handler decide se processare la richiesta o inoltrarla al successivo, evitando di accoppiare il mittente al destinatario.',
+                baseUmlUrl: 'comportamentali/Chainofresponsability.png',
+                exampleUmlUrl: 'comportamentali/ChainofresponsabilityEsempio.png',
+                pros: [
+                    'Disaccoppia il mittente della richiesta dai suoi destinatari.',
+                    'Permette di aggiungere o rimuovere handler dalla catena dinamicamente.',
+                ],
+                cons: [
+                    'Non c\'è garanzia che la richiesta venga gestita se nessun handler la processa.',
+                    'Il debugging può essere difficile con catene lunghe e complesse.',
+                ],
+                differences: [],
+            },
+            {
+                id: 'command',
+                name: 'Command',
+                category: 'comportamentali',
+                definition: 'Il Command incapsula una richiesta come oggetto, permettendo di parametrizzare i client con diverse richieste, accodare operazioni, e supportare operazioni annullabili (undo/redo).',
+                baseUmlUrl: 'comportamentali/Command.png',
+                exampleUmlUrl: 'comportamentali/CommandEsempio.png',
+                pros: [
+                    'Disaccoppia l\'oggetto che invoca l\'operazione da quello che la esegue.',
+                    'Supporta nativamente undo/redo e accodamento delle operazioni.',
+                ],
+                cons: [
+                    'Può portare a un elevato numero di classi Command per ogni operazione.',
+                    'Aumenta la complessità generale del sistema per operazioni semplici.',
+                ],
+                differences: [],
+            },
+            {
+                id: 'iterator',
+                name: 'Iterator',
+                category: 'comportamentali',
+                definition: 'L\'Iterator fornisce un modo per accedere sequenzialmente agli elementi di una collezione senza esporne la struttura interna. Astrae il meccanismo di attraversamento dalla collezione stessa.',
+                baseUmlUrl: 'comportamentali/Iterator.png',
+                exampleUmlUrl: 'comportamentali/IteratorEsempio.png',
+                pros: [
+                    'Permette di attraversare collezioni diverse con un\'interfaccia uniforme.',
+                    'Rispetta il Principio di Responsabilità Singola: la logica di iterazione è separata dalla collezione.',
+                ],
+                cons: [
+                    'Può essere eccessivo per collezioni semplici già supportate dal linguaggio.',
+                    'Alcuni iteratori possono diventare meno efficienti rispetto all\'accesso diretto.',
+                ],
+                differences: [],
+            },
+            {
+                id: 'mediator',
+                name: 'Mediator',
+                category: 'comportamentali',
+                definition: 'Il Mediator definisce un oggetto che incapsula le modalità di interazione tra un insieme di oggetti. Promuove il basso accoppiamento evitando che gli oggetti si riferiscano esplicitamente l\'uno all\'altro.',
+                baseUmlUrl: 'comportamentali/Mediator.png',
+                exampleUmlUrl: 'comportamentali/MediatorEsempio.png',
+                pros: [
+                    'Centralizza la comunicazione complessa tra molti oggetti in un unico punto.',
+                    'Riduce l\'accoppiamento diretto tra i componenti del sistema.',
+                ],
+                cons: [
+                    'Il mediatore può diventare un "God Object" con troppa logica concentrata.',
+                    'Può introdurre un singolo punto di fallimento nel sistema.',
+                ],
+                differences: [],
+            },
+            {
+                id: 'memento',
+                name: 'Memento',
+                category: 'comportamentali',
+                definition: 'Il Memento cattura e salva lo stato interno di un oggetto senza violarne l\'incapsulamento, permettendo di ripristinarlo in un secondo momento. È la base dei meccanismi di undo.',
+                baseUmlUrl: 'comportamentali/Memento.png',
+                exampleUmlUrl: 'comportamentali/MementoEsempio.png',
+                pros: [
+                    'Permette il salvataggio e ripristino dello stato senza violare l\'incapsulamento.',
+                    'Semplifica l\'implementazione di funzionalità undo/redo.',
+                ],
+                cons: [
+                    'Può consumare molta memoria se i memento vengono creati frequentemente.',
+                    'Il caretaker deve gestire il ciclo di vita dei memento per evitare sprechi.',
+                ],
+                differences: [],
+            },
+            {
+                id: 'observer',
+                name: 'Observer',
+                category: 'comportamentali',
+                definition: 'L\'Observer definisce una dipendenza uno‑a‑molti tra oggetti: quando il Subject cambia stato, tutti gli Observer registrati vengono notificati e aggiornati automaticamente. È alla base delle architetture event‑driven.',
+                baseUmlUrl: 'comportamentali/Observer.png',
+                exampleUmlUrl: 'comportamentali/ObserverEsempio.png',
+                pros: [
+                    'Promuove il basso accoppiamento tra soggetto e osservatori.',
+                    'Rispetta il Principio Aperto/Chiuso: nuovi observer senza modificare il soggetto.',
+                ],
+                cons: [
+                    'Può causare memory leak se gli observer non vengono deregistrati correttamente.',
+                    'L\'ordine di notifica non è generalmente garantito.',
+                ],
+                differences: [],
+            },
+            {
+                id: 'state',
+                name: 'State',
+                category: 'comportamentali',
+                definition: 'Il pattern State permette a un oggetto di modificare il proprio comportamento quando il suo stato interno cambia. L\'oggetto sembrerà cambiare la propria classe, eliminando lunghe catene di if/switch.',
+                baseUmlUrl: 'comportamentali/State.png',
+                exampleUmlUrl: 'comportamentali/StateEsempio.png',
+                pros: [
+                    'Elimina catene complesse di if/else o switch legate allo stato.',
+                    'Rispetta il Principio Aperto/Chiuso: nuovi stati senza modificare il contesto.',
+                ],
+                cons: [
+                    'Può essere eccessivo se la macchina a stati ha pochi stati semplici.',
+                    'Aumenta il numero di classi nel sistema (una per ogni stato).',
+                ],
+                differences: [
+                    { compareWith: 'Strategy', text: '<strong>1. Consapevolezza e Transizioni</strong><br>• <em>State:</em> I singoli stati concreti possono essere consapevoli l\'uno dell\'altro e spesso avviano autonomamente le transizioni da uno stato all\'altro. Gli stati collaborano per formare una macchina a stati finiti, modificando lo stato del Context a piacimento.<br>• <em>Strategy:</em> Le strategie concrete sono completamente indipendenti e quasi mai sono a conoscenza l\'una dell\'altra. Non spetta alla strategia decidere quale sarà la prossima strategia da eseguire; esse sono semplici alternative intercambiabili per eseguire un compito.<br><br><strong>2. Chi controlla il cambiamento</strong><br>• <em>State:</em> Il passaggio da uno stato all\'altro è solitamente gestito internamente dal Context o dagli stessi oggetti State al verificarsi di determinati eventi o condizioni (es. un documento passa da "Bozza" a "Pubblicato"). L\'obiettivo è far sembrare che l\'oggetto abbia cambiato la propria classe, modificando il suo comportamento in base allo stato interno.<br>• <em>Strategy:</em> È generalmente il Client a scegliere quale strategia passare al Context. Il Context non è responsabile della selezione dell\'algoritmo appropriato, ma si limita a eseguirlo. Una volta impostata, la strategia tende a rimanere fissa per la durata di quell\'operazione specifica, a meno che il Client non decida di sostituirla a runtime.<br><br><strong>3. Obiettivo (Intent)</strong><br>• <em>State:</em> Serve a gestire il comportamento di un oggetto che cambia drasticamente in base al suo stato interno, eliminando la necessità di massicci condizionali (if/switch) all\'interno della classe principale. È un\'estensione del pattern Strategy utilizzata per modellare macchine a stati finiti.<br>• <em>Strategy:</em> Serve a definire una famiglia di algoritmi, incapsularli e renderli intercambiabili. Permette di isolare la logica di business dai dettagli implementativi degli algoritmi (es. diversi modi di calcolare un percorso o ordinare dati), permettendo di variare il "come" viene svolta un\'azione.<br><br><strong>Sintesi delle Analogie Reali</strong><br>• <em>Analogia State:</em> Il comportamento dei tasti di uno smartphone cambia a seconda che il telefono sia sbloccato, bloccato o con batteria scarica. Il telefono transita tra questi stati.<br>• <em>Analogia Strategy:</em> Per andare all\'aeroporto puoi scegliere diverse strategie (autobus, taxi, bicicletta). Sei tu (il Client) a decidere quale mezzo usare in base alle tue necessità (costo, tempo), e i mezzi (le strategie) sono indipendenti tra loro.' },
+                ],
+            },
+            {
+                id: 'strategy',
+                name: 'Strategy',
+                category: 'comportamentali',
+                definition: 'Lo Strategy definisce una famiglia di algoritmi, li incapsula ciascuno in una classe separata e li rende intercambiabili. Permette al client di scegliere l\'algoritmo più adatto a runtime.',
+                baseUmlUrl: 'comportamentali/Strategy.png',
+                exampleUmlUrl: 'comportamentali/StrategyEsempio.png',
+                pros: [
+                    'Permette di cambiare algoritmo a runtime senza modificare il contesto.',
+                    'Isola il codice e i dati specifici di ogni algoritmo in classi dedicate.',
+                ],
+                cons: [
+                    'Il client deve conoscere le differenze tra le strategie per sceglierne una.',
+                    'Può essere eccessivo se ci sono solo pochi algoritmi che cambiano raramente.',
+                ],
+                differences: [
+                    { compareWith: 'State', text: '<strong>1. Consapevolezza e Transizioni</strong><br>• <em>State:</em> I singoli stati concreti possono essere consapevoli l\'uno dell\'altro e spesso avviano autonomamente le transizioni da uno stato all\'altro. Gli stati collaborano per formare una macchina a stati finiti, modificando lo stato del Context a piacimento.<br>• <em>Strategy:</em> Le strategie concrete sono completamente indipendenti e quasi mai sono a conoscenza l\'una dell\'altra. Non spetta alla strategia decidere quale sarà la prossima strategia da eseguire; esse sono semplici alternative intercambiabili per eseguire un compito.<br><br><strong>2. Chi controlla il cambiamento</strong><br>• <em>State:</em> Il passaggio da uno stato all\'altro è solitamente gestito internamente dal Context o dagli stessi oggetti State al verificarsi di determinati eventi o condizioni (es. un documento passa da "Bozza" a "Pubblicato"). L\'obiettivo è far sembrare che l\'oggetto abbia cambiato la propria classe, modificando il suo comportamento in base allo stato interno.<br>• <em>Strategy:</em> È generalmente il Client a scegliere quale strategia passare al Context. Il Context non è responsabile della selezione dell\'algoritmo appropriato, ma si limita a eseguirlo. Una volta impostata, la strategia tende a rimanere fissa per la durata di quell\'operazione specifica, a meno che il Client non decida di sostituirla a runtime.<br><br><strong>3. Obiettivo (Intent)</strong><br>• <em>State:</em> Serve a gestire il comportamento di un oggetto che cambia drasticamente in base al suo stato interno, eliminando la necessità di massicci condizionali (if/switch) all\'interno della classe principale. È un\'estensione del pattern Strategy utilizzata per modellare macchine a stati finiti.<br>• <em>Strategy:</em> Serve a definire una famiglia di algoritmi, incapsularli e renderli intercambiabili. Permette di isolare la logica di business dai dettagli implementativi degli algoritmi (es. diversi modi di calcolare un percorso o ordinare dati), permettendo di variare il "come" viene svolta un\'azione.<br><br><strong>Sintesi delle Analogie Reali</strong><br>• <em>Analogia State:</em> Il comportamento dei tasti di uno smartphone cambia a seconda che il telefono sia sbloccato, bloccato o con batteria scarica. Il telefono transita tra questi stati.<br>• <em>Analogia Strategy:</em> Per andare all\'aeroporto puoi scegliere diverse strategie (autobus, taxi, bicicletta). Sei tu (il Client) a decidere quale mezzo usare in base alle tue necessità (costo, tempo), e i mezzi (le strategie) sono indipendenti tra loro.' },
+                ],
+            },
+            {
+                id: 'template-method',
+                name: 'Template Method',
+                category: 'comportamentali',
+                definition: 'Il Template Method definisce lo scheletro di un algoritmo in una classe base, delegando alcuni passi alle sottoclassi. Le sottoclassi ridefiniscono certi passi senza cambiare la struttura complessiva.',
+                baseUmlUrl: 'comportamentali/TemplateMethod.png',
+                exampleUmlUrl: 'comportamentali/TemplateMethodEsempio.png',
+                pros: [
+                    'Elimina la duplicazione del codice spostando la logica comune nella classe base.',
+                    'Le sottoclassi possono personalizzare solo i passi necessari.',
+                ],
+                cons: [
+                    'Le sottoclassi sono vincolate alla struttura dell\'algoritmo definita nella classe base.',
+                    'Può violare il Principio di Sostituzione di Liskov se le sottoclassi alterano il flusso atteso.',
+                ],
+                differences: [],
+            },
+            {
+                id: 'visitor',
+                name: 'Visitor',
+                category: 'comportamentali',
+                definition: 'Il Visitor permette di definire nuove operazioni su una struttura di oggetti senza modificarne le classi. L\'operazione viene spostata in un oggetto visitor separato che "visita" ogni elemento.',
+                baseUmlUrl: 'comportamentali/Visitor.png',
+                exampleUmlUrl: 'comportamentali/VisitorEsempio.png',
+                pros: [
+                    'Aggiungere nuove operazioni è semplice senza modificare le classi esistenti.',
+                    'Raccoglie operazioni correlate in un\'unica classe visitor.',
+                ],
+                cons: [
+                    'Aggiungere nuovi tipi di elementi richiede l\'aggiornamento di tutti i visitor.',
+                    'I visitor possono accedere a dettagli privati degli elementi, violando l\'incapsulamento.',
+                ],
+                differences: [],
+            },
+        ];
+
+        // ==================================================================
+        //  CATEGORY DISPLAY ORDER & COLOUR MAP
+        // ==================================================================
+        const categoryOrder = ['creazionali', 'strutturali', 'comportamentali'];
+        const categorySlug = (cat) => cat.toLowerCase();  // used for CSS modifier classes
+        const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1); // display helper
+
+        // ==================================================================
+        //  DOM REFERENCES
+        // ==================================================================
+        const sidebarNav = document.getElementById('sidebarNav');
+        const mainContent = document.getElementById('mainContent');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        // Track currently active pattern id
+        let activePatternId = null;
+
+        // ==================================================================
+        //  SIDEBAR RENDERING
+        //  Groups buttons by category and injects them into the sidebar nav.
+        // ==================================================================
+        function renderSidebar() {
+            // Group patterns by category
+            const grouped = {};
+            patterns.forEach((p) => {
+                if (!grouped[p.category]) grouped[p.category] = [];
+                grouped[p.category].push(p);
+            });
+
+            // Build HTML following the predefined category order
+            let html = '';
+            categoryOrder.forEach((cat) => {
+                const items = grouped[cat];
+                if (!items) return; // skip if no patterns in this category
+
+                html += `
+          <div class="sidebar__category">
+            <div class="sidebar__category-title">${capitalize(cat)}</div>
+            ${items
+                        .map(
+                            (p) => `
+              <button
+                class="sidebar__btn"
+                data-id="${p.id}"
+                id="btn-${p.id}"
+              >
+                <span class="dot dot--${categorySlug(p.category)}"></span>
+                ${p.name}
+              </button>`
+                        )
+                        .join('')}
+          </div>`;
+            });
+
+            sidebarNav.innerHTML = html;
+
+            // Attach click listeners to every button
+            sidebarNav.querySelectorAll('.sidebar__btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    showPattern(id);
+                });
+            });
+        }
+
+        // ==================================================================
+        //  PATTERN DETAIL RENDERING
+        //  Dynamically replaces the main content area with the selected
+        //  pattern's details — no page reload.
+        // ==================================================================
+        function showPattern(id) {
+            const pattern = patterns.find((p) => p.id === id);
+            if (!pattern) return;
+
+            // Update active state in sidebar
+            activePatternId = id;
+            sidebarNav.querySelectorAll('.sidebar__btn').forEach((btn) => {
+                btn.classList.toggle('active', btn.dataset.id === id);
+            });
+
+            // Build the detail HTML
+            const slug = categorySlug(pattern.category);
+
+            mainContent.innerHTML = `
+        <article class="pattern-detail">
+          <!-- Category badge -->
+          <span class="pattern-detail__badge badge--${slug}">${capitalize(pattern.category)}</span>
+
+          <!-- Pattern name -->
+          <h2 class="pattern-detail__title">${pattern.name}</h2>
+
+          <!-- Definition card -->
+          <div class="pattern-detail__definition">
+            <strong>Definition:</strong> ${pattern.definition}
+          </div>
+
+          <!-- UML diagrams — base + concrete example -->
+          <div class="pattern-detail__diagrams">
+            <!-- Base UML structure -->
+            <div class="pattern-detail__diagram-card">
+              <div class="pattern-detail__diagram-label">📐 Struttura UML Base</div>
+              <div class="pattern-detail__image-wrapper">
+                <img
+                  class="pattern-detail__image"
+                  src="${pattern.baseUmlUrl}"
+                  alt="Base UML Diagram for ${pattern.name} pattern"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+            <!-- Concrete example -->
+            <div class="pattern-detail__diagram-card">
+              <div class="pattern-detail__diagram-label">🧪 Esempio Applicativo Concreto</div>
+              <div class="pattern-detail__image-wrapper">
+                <img
+                  class="pattern-detail__image"
+                  src="${pattern.exampleUmlUrl}"
+                  alt="Concrete Example UML for ${pattern.name} pattern"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Pros & Cons grid -->
+          <div class="pros-cons">
+            <!-- Pros -->
+            <div class="pros-cons__card card--pros">
+              <h3>👍 PRO</h3>
+              <ul>
+                ${pattern.pros.map((p) => `<li>${p}</li>`).join('')}
+              </ul>
+            </div>
+
+            <!-- Cons -->
+            <div class="pros-cons__card card--cons">
+              <h3>👎 CONTRO</h3>
+              <ul>
+                ${pattern.cons.map((c) => `<li>${c}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Differences / Comparisons -->
+          <div class="differences">
+            <h3 class="differences__title">🔄 Confronti con altri Pattern</h3>
+            ${pattern.differences.length === 0
+                    ? '<p class="differences__empty">Nessun confronto inserito al momento.</p>'
+                    : pattern.differences.map((d) => `
+                <details class="differences__item">
+                  <summary>${pattern.name} vs ${d.compareWith}</summary>
+                  <div class="differences__item-body">${d.text}</div>
+                </details>
+              `).join('')
+                }
+          </div>
+        </article>
+      `;
+
+            // Close mobile sidebar after selection
+            closeSidebar();
+        }
+
+        // ==================================================================
+        //  MOBILE SIDEBAR TOGGLE
+        // ==================================================================
+        function openSidebar() {
+            sidebar.classList.add('open');
+            sidebarOverlay.classList.add('visible');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('visible');
+        }
+
+        hamburgerBtn.addEventListener('click', () => {
+            sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+        });
+
+        sidebarOverlay.addEventListener('click', closeSidebar);
+
+        // ==================================================================
+        //  INITIALISATION
+        // ==================================================================
+        renderSidebar();
+    </script>
+</body>
+
+</html>
