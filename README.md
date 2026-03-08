@@ -1,6 +1,6 @@
 # 🎯 Design Patterns Study SPA
 
-**Online Web Site : https://design-patterns-spa.vercel.app/**
+**Online Web Site : https://design-patterns-spa.vercel.app/**.
 Una Single Page Application (SPA) interattiva sviluppata interamente in HTML, CSS e Vanilla JavaScript, pensata come strumento di supporto per lo studio e il ripasso dell'esame di Ingegneria del Software.
 <img width="1920" height="1080" alt="Screenshot 2026-02-20 163254" src="https://github.com/user-attachments/assets/ccc5e8d4-319e-4960-97c8-3efe09cd42f7" />
 ## 🚀 Funzionalità Principali
