@@ -686,7 +686,7 @@
                 id: 'builder',
                 name: 'Builder',
                 category: 'creazionali',
-                definition: 'Il pattern Builder separa la costruzione di un oggetto complesso dalla sua rappresentazione, permettendo allo stesso processo di costruzione di creare rappresentazioni diverse. Ideale per oggetti con molti parametri opzionali.',
+                definition: 'Fornisce un interfaccia che permette la costruzione di un oggetto complesso passo dopo passo ,consentendo di produrre diversi tipi e rappresentazioni di un oggetto usando lo stesso codice di costruzione.',
                 baseUmlUrl: 'creazionali/Builder.png',
                 exampleUmlUrl: 'creazionali/BuilderEsempio.png',
                 pros: [
@@ -711,8 +711,8 @@
                 pros: [
                     'Evita il costo di inizializzazione ripetuta per oggetti complessi.',
                     'Permette di aggiungere e rimuovere prodotti a runtime.',
-                    'Permette di clonare oggetti con riferimenti circolari.',
                     'Puoi produrre oggetti complessi convenientemente.',
+                    'Permette di clonare oggetti senza dipendere dalle classi concrete',
                 ],
                 cons: [
                     'Clonare oggetti con riferimenti circolari può essere molto complesso.',
@@ -788,7 +788,7 @@
                 id: 'decorator',
                 name: 'Decorator',
                 category: 'strutturali',
-                definition: 'Il Decorator aggiunge dinamicamente responsabilità a un oggetto, fornendo un\'alternativa flessibile all\'ereditarietà. I decorator si impilano attorno all\'oggetto originale come strati.',
+                definition: 'Il Decorator aggiunge dinamicamente responsabilità a un oggetto, fornendo un\'alternativa flessibile all\'ereditarietà. I decorator si impilano attorno all\'oggetto originale come strati che contengono le responsabilità aggiuntive.',
                 baseUmlUrl: 'strutturali/Decorator.png',
                 exampleUmlUrl: 'strutturali/DecoratorEsempio.png',
                 pros: [
